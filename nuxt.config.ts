@@ -12,4 +12,11 @@ export default defineNuxtConfig({
   css: [
     './app/assets/css/index.css',
   ],
+  sourcemap: {
+    client: false,
+    server: false,
+  },
+  app: {
+    baseURL: '/nuxt/',
+  },
 })
