@@ -25,9 +25,20 @@ export default defineNuxtConfig({
         filename: '[path][base].br',
       }),
     ],
+    server: {
+      proxy: {
+        '/api': {
+          // 实际应为线上后端地址,因为模板项目我自己实现后端,所以指向本地地址
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          rewrite: (str: string) => str.replace(/^\/api/, ''),
+        },
+      },
+    },
   },
   css: [
     './app/assets/css/index.css',
+    'highlight.js/styles/github-dark.css',
   ],
   sourcemap: {
     client: false,
