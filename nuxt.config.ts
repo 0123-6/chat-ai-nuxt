@@ -6,6 +6,10 @@ import zlib from 'node:zlib'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  // 新增：设置 Nuxt 开发服务端口为 3000（核心配置）
+  devServer: {
+    port: 3000,
+  },
   vite: {
     plugins: [
       tailwindcss(),
