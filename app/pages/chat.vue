@@ -85,15 +85,10 @@ const clickSend = () => {
 }
 const [isFetching, resetIsFetching] = useResetRef((): boolean => false)
 const [chatList, resetChatList] = useResetRef((): IChat[] => [])
-let eventSource: EventSource | null = null; // SSE连接实例
 // 关闭SSE连接（统一管理，避免内存泄漏）
 const closeSSEConnection = () => {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-  isFetching.value = false
   fetchQuestionAbortController?.abort?.()
+  isFetching.value = false
 };
 
 const clickHint = (newQuestion: string) => {
