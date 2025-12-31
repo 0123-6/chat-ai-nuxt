@@ -50,5 +50,11 @@ export default defineNuxtConfig({
   },
   app: {
     baseURL: '/nuxt/',
+    head: {
+      title: 'nuxt模仿豆包网站',
+      htmlAttrs: {
+        lang: 'zh-CN',
+      },
+    },
   },
 })
