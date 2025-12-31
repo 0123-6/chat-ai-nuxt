@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   // 新增：设置 Nuxt 开发服务端口为 3000（核心配置）
   devServer: {
-    host: '0.0.0.0',
     port: 3000,
   },
   vite: {
