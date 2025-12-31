@@ -197,6 +197,18 @@ const renderMarkdown = (content: string | undefined): string => {
   // 解析 Markdown 为 HTML
   return marked.parse(content);
 };
+
+const connectRef = ref<HTMLDivElement | null>(null)
+watch(chatList, () => {
+  if (!connectRef.value) {
+    return
+  }
+
+  connectRef.value.scrollTop = connectRef.value.scrollHeight
+}, {
+  deep: true,
+  flush: 'post',
+})
 </script>
 
 <template>
@@ -244,6 +256,7 @@ const renderMarkdown = (content: string | undefined): string => {
     <div class="grow h-full py-5 flex flex-col justify-center items-center gap-y-6">
       <!--内容区-->
       <div
+        ref="connectRef"
         class="w-4/5 max-w-200 grow flex flex-col overflow-auto"
       >
         <div
