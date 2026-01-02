@@ -57,16 +57,16 @@ const historyChatList = [
   '多个子网站运行方式多个子网站运行方式',
   'Nuxt4引入SVG方式',
 ]
-const hintList = [
-  '一年中几月份最好找工作？',
-  '古人如何描写遗憾？',
-  '哪些习惯能提升睡眠质量？',
-  '为什么唐宋八大家没有李白？',
-  '写一份简洁清晰的工作周报',
-  '生成小众艺术插画',
-  '电子设备的护眼模式真的能防近视吗？',
-  '写一份结构严谨的论文大纲',
-]
+// const hintList = [
+//   '一年中几月份最好找工作？',
+//   '古人如何描写遗憾？',
+//   '哪些习惯能提升睡眠质量？',
+//   '为什么唐宋八大家没有李白？',
+//   '写一份简洁清晰的工作周报',
+//   '生成小众艺术插画',
+//   '电子设备的护眼模式真的能防近视吗？',
+//   '写一份结构严谨的论文大纲',
+// ]
 
 const question = ref<string>('')
 const clickSend = () => {
@@ -264,20 +264,22 @@ watch(chatList, () => {
           class="w-full h-full flex flex-col justify-center items-center gap-y-2"
         >
           <span class="mb-5 h-9 text-black font-bold text-3xl">{{helpContent}}</span>
-          <div
-            v-for="(fatherIndex) of 3"
-            :key="fatherIndex"
-            class="flex items-center gap-x-2"
-          >
+          <template v-if="false">
             <div
-              v-for="(item, index) in hintList.slice(3*(fatherIndex-1), 3*(fatherIndex))"
-              :key="index"
-              class="bg-[#0000000a] hover:bg-[#00000012] flex justify-center items-center px-4 py-2.5 rounded-xl cursor-pointer"
-              @click="clickHint(item)"
+              v-for="(fatherIndex) of 3"
+              :key="fatherIndex"
+              class="flex items-center gap-x-2"
             >
-              <span class="text-sm">{{item}}</span>
+              <div
+                v-for="(item, index) in hintList.slice(3*(fatherIndex-1), 3*(fatherIndex))"
+                :key="index"
+                class="bg-[#0000000a] hover:bg-[#00000012] flex justify-center items-center px-4 py-2.5 rounded-xl cursor-pointer"
+                @click="clickHint(item)"
+              >
+                <span class="text-sm">{{item}}</span>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
         <div
           v-else
