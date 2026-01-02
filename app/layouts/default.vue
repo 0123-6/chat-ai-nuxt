@@ -4,7 +4,7 @@
 
 <template>
   <div class="w-dvw h-dvh flex flex-col overflow-auto">
-    <div class="w-full min-w-200 h-full flex flex-col">
+    <div class="w-full h-full flex flex-col">
       <slot/>
     </div>
   </div>
