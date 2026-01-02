@@ -264,22 +264,20 @@ watch(chatList, () => {
           class="w-full h-full flex flex-col justify-center items-center gap-y-2"
         >
           <span class="mb-5 h-9 text-black font-bold text-3xl">{{helpContent}}</span>
-          <template v-if="false">
-            <div
-              v-for="(fatherIndex) of 3"
-              :key="fatherIndex"
-              class="flex items-center gap-x-2"
-            >
-              <div
-                v-for="(item, index) in hintList.slice(3*(fatherIndex-1), 3*(fatherIndex))"
-                :key="index"
-                class="bg-[#0000000a] hover:bg-[#00000012] flex justify-center items-center px-4 py-2.5 rounded-xl cursor-pointer"
-                @click="clickHint(item)"
-              >
-                <span class="text-sm">{{item}}</span>
-              </div>
-            </div>
-          </template>
+<!--          <div-->
+<!--            v-for="(fatherIndex) of 3"-->
+<!--            :key="fatherIndex"-->
+<!--            class="flex items-center gap-x-2"-->
+<!--          >-->
+<!--            <div-->
+<!--              v-for="(item, index) in hintList.slice(3*(fatherIndex-1), 3*(fatherIndex))"-->
+<!--              :key="index"-->
+<!--              class="bg-[#0000000a] hover:bg-[#00000012] flex justify-center items-center px-4 py-2.5 rounded-xl cursor-pointer"-->
+<!--              @click="clickHint(item)"-->
+<!--            >-->
+<!--              <span class="text-sm">{{item}}</span>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
         <div
           v-else
