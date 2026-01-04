@@ -57,16 +57,7 @@ const historyChatList = [
   '多个子网站运行方式多个子网站运行方式',
   'Nuxt4引入SVG方式',
 ]
-// const hintList = [
-//   '一年中几月份最好找工作？',
-//   '古人如何描写遗憾？',
-//   '哪些习惯能提升睡眠质量？',
-//   '为什么唐宋八大家没有李白？',
-//   '写一份简洁清晰的工作周报',
-//   '生成小众艺术插画',
-//   '电子设备的护眼模式真的能防近视吗？',
-//   '写一份结构严谨的论文大纲',
-// ]
+
 
 const question = ref<string>('')
 const clickSend = () => {
@@ -257,27 +248,17 @@ watch(chatList, () => {
       <!--内容区-->
       <div
         ref="connectRef"
-        class="w-4/5 max-w-200 grow flex flex-col overflow-auto"
+        class="w-4/5 max-w-200 flex flex-col overflow-auto"
+        :class="[
+          chatList.length ? 'grow' : '',
+        ]"
       >
         <div
           v-if="!chatList.length"
           class="w-full h-full flex flex-col justify-center items-center gap-y-2"
         >
           <span class="mb-5 h-9 text-black font-bold text-3xl">{{helpContent}}</span>
-<!--          <div-->
-<!--            v-for="(fatherIndex) of 3"-->
-<!--            :key="fatherIndex"-->
-<!--            class="flex items-center gap-x-2"-->
-<!--          >-->
-<!--            <div-->
-<!--              v-for="(item, index) in hintList.slice(3*(fatherIndex-1), 3*(fatherIndex))"-->
-<!--              :key="index"-->
-<!--              class="bg-[#0000000a] hover:bg-[#00000012] flex justify-center items-center px-4 py-2.5 rounded-xl cursor-pointer"-->
-<!--              @click="clickHint(item)"-->
-<!--            >-->
-<!--              <span class="text-sm">{{item}}</span>-->
-<!--            </div>-->
-<!--          </div>-->
+          <!--<HintList @click="clickHint"/>-->
         </div>
         <div
           v-else
@@ -297,9 +278,6 @@ watch(chatList, () => {
               </div>
             </div>
             <!--回答-->
-<!--            <div>-->
-<!--              <span>{{item.streamingAnswer || item.answer || '正在为你生成回答...'}}</span>-->
-<!--            </div>-->
             <div
               class="ai-answer-markdown"
               v-html="renderMarkdown(item.streamingAnswer || item.answer)"
@@ -310,12 +288,12 @@ watch(chatList, () => {
       <!--用户交互区-->
       <div class="w-4/5 max-w-200 rounded-2xl border border-[#e0e0e0] flex flex-col p-3">
         <textarea
-          v-model="question"
-          placeholder="询问任何问题"
-          rows="4"
-          class="box-border min-h-14 max-h-40 resize-none"
-          @keydown.enter.prevent="clickSend"
-        ></textarea>
+              v-model="question"
+              placeholder="询问任何问题"
+              rows="4"
+              class="box-border min-h-14 max-h-40 resize-none"
+              @keydown.enter.prevent="clickSend"
+            ></textarea>
         <div class="flex justify-end items-center">
           <!--发送按钮-->
           <button
@@ -440,13 +418,16 @@ watch(chatList, () => {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: #e0e0e0;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-track {
   background-color: transparent;
 }
+
 /* ========== 表格专属美化样式（核心新增） ========== */
 .ai-answer-markdown table {
   width: 100%;
