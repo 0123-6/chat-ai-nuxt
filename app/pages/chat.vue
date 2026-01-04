@@ -205,7 +205,7 @@ watch(chatList, () => {
 <template>
   <div class="w-full h-full flex">
     <!--左侧-->
-    <div class="w-65 h-full flex flex-col overflow-auto bg-[#f9f9f9] border-r border-[#ededed]">
+    <div class="hidden w-65 h-full flex-col overflow-auto bg-[#f9f9f9] border-r border-[#ededed]">
       <div class="w-full px-2 flex flex-col gap-y-2">
         <!--头部-->
         <div class="h-13 flex justify-between items-center">
@@ -257,7 +257,7 @@ watch(chatList, () => {
           v-if="!chatList.length"
           class="w-full h-full flex flex-col justify-center items-center gap-y-2"
         >
-          <span class="mb-5 h-9 text-black font-bold text-3xl">{{helpContent}}</span>
+          <span class="mb-5 h-9 text-black font-bold text-2xl">{{helpContent}}</span>
           <!--<HintList @click="clickHint"/>-->
         </div>
         <div
