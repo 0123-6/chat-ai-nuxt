@@ -149,6 +149,11 @@ const fetchQuestionWithSSE = async () => {
       }
     }
   } catch (err) {
+    if ((err as Error).name === 'AbortError') {
+      console.log('手动停止的错误')
+      return
+    }
+
     console.error('POST 流式请求失败：', err);
     lastChat.streamingAnswer = '请求异常，请稍后重试';
     closeSSEConnection();
