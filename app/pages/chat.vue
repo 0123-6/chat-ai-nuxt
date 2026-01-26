@@ -26,7 +26,6 @@ interface IStreamData {
   msg: string;
   data: {
     id: string;
-    loginStatus: boolean;
     partialAnswer?: string;
     answer?: string;
   };
