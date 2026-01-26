@@ -44,8 +44,7 @@ app/
 // 聊天消息
 interface IChat {
   question: string;
-  answer?: string;
-  streamingAnswer?: string;  // 流式输出缓冲
+  streamingAnswer?: string;  // 流式分片拼接存储
 }
 
 // SSE 流式数据

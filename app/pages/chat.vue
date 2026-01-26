@@ -4,8 +4,7 @@ import { marked } from "marked";
 
 interface IChat {
   question: string;
-  answer?: string;
-  // 新增：流式分片拼接的临时存储，实现实时打字机效果
+  // 流式分片拼接存储，实现实时打字机效果
   streamingAnswer?: string;
 }
 interface IProps {
@@ -101,7 +100,6 @@ const fetchQuestionWithSSE = async () => {
 
   closeSSEConnection();
   lastChat.streamingAnswer = '';
-  lastChat.answer = undefined;
   isFetching.value = true
   fetchQuestionAbortController = new AbortController()
 
@@ -134,8 +132,6 @@ const fetchQuestionWithSSE = async () => {
       for (const msg of messages) {
         if (!msg) continue;
         if (msg === 'data: [DONE]') {
-          console.log('end')
-          lastChat.answer = lastChat.streamingAnswer;
           closeSSEConnection();
           return;
         }
@@ -161,10 +157,6 @@ const fetchQuestionWithSSE = async () => {
 // 停止请求
 const clickStopFetch = () => {
   closeSSEConnection();
-  const lastChat = chatList.value.at(-1)!;
-  if (lastChat.streamingAnswer && !lastChat.answer) {
-    lastChat.answer = lastChat.streamingAnswer;
-  }
 };
 
 // 配置 marked：启用代码高亮
@@ -283,7 +275,7 @@ watch(chatList, () => {
             <!--回答-->
             <div
               class="ai-answer-markdown"
-              v-html="renderMarkdown(item.streamingAnswer || item.answer)"
+              v-html="renderMarkdown(item.streamingAnswer)"
             ></div>
           </div>
         </div>
