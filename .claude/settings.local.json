@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Write-Host $env:USERPROFILE\\\\.claude\")",
+      "Bash(powershell -Command \"[Environment]::GetFolderPath\\(''UserProfile''\\)\")",
+      "Bash(powershell -Command \"Test-Path ''C:\\\\Users\\\\90945\\\\.claude''\")"
+    ]
+  }
+}
