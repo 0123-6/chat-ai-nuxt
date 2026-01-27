@@ -7,9 +7,6 @@ interface IChat {
   // 流式分片拼接存储，实现实时打字机效果
   streamingAnswer?: string;
 }
-interface IProps {
-  conversationId?: string,
-}
 interface IResponseData {
   // 正常情况下为200
   code: number
@@ -29,7 +26,8 @@ interface IStreamData {
   };
 }
 
-const props = defineProps<IProps>()
+const route = useRoute()
+const conversationId = computed(() => route.params.conversationId as string | undefined)
 
 const fullHelpContent = '有什么我能帮你的吗？'
 const helpContent = ref<string>('')
@@ -108,7 +106,7 @@ const fetchQuestionWithSSE = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        conversationId: props.conversationId,
+        conversationId: conversationId.value,
         question: lastChat.question,
       }),
       signal: fetchQuestionAbortController.signal,
