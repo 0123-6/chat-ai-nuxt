@@ -3,7 +3,9 @@
     "allow": [
       "Bash(powershell -Command \"Write-Host $env:USERPROFILE\\\\.claude\")",
       "Bash(powershell -Command \"[Environment]::GetFolderPath\\(''UserProfile''\\)\")",
-      "Bash(powershell -Command \"Test-Path ''C:\\\\Users\\\\90945\\\\.claude''\")"
+      "Bash(powershell -Command \"Test-Path ''C:\\\\Users\\\\90945\\\\.claude''\")",
+      "Bash(del \"D:\\\\front-end\\\\chat-ai-nuxt\\\\app\\\\pages\\\\chat.vue\")",
+      "Bash(powershell -Command \"Remove-Item ''D:\\\\front-end\\\\chat-ai-nuxt\\\\app\\\\pages\\\\chat.vue''\")"
     ]
   }
 }
