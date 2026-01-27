@@ -27,7 +27,6 @@ interface IStreamData {
 }
 
 const route = useRoute()
-const router = useRouter()
 // 使用 ref 存储 conversationId，初始值从路由参数获取
 const conversationId = ref<string | undefined>(route.params.conversationId as string | undefined)
 
@@ -35,7 +34,8 @@ const conversationId = ref<string | undefined>(route.params.conversationId as st
 const updateConversationIdInUrl = (newId: string) => {
   if (conversationId.value === newId) return
   conversationId.value = newId
-  router.replace(`/chat/${newId}`)
+  // 使用 history.replaceState 只更新 URL，不触发路由变化
+  window.history.replaceState({}, '', `/chat/${newId}`)
 }
 
 const fullHelpContent = '有什么我能帮你的吗？'
@@ -97,9 +97,9 @@ const clickHint = (newQuestion: string) => {
 const clickNewChat = () => {
   closeSSEConnection();
   resetChatList();
-  // 重置 conversationId 并跳转到 /chat
+  // 重置 conversationId 并更新 URL
   conversationId.value = undefined
-  router.replace('/chat')
+  window.history.replaceState({}, '', '/chat')
 }
 
 let fetchQuestionAbortController: AbortController
