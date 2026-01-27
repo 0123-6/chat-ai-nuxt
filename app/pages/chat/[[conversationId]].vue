@@ -35,7 +35,7 @@ const updateConversationIdInUrl = (newId: string) => {
   if (conversationId.value === newId) return
   conversationId.value = newId
   // 使用 history.replaceState 只更新 URL，不触发路由变化
-  window.history.replaceState({}, '', `/chat/${newId}`)
+  window.history.replaceState({}, '', `/nuxt/chat/${newId}`)
 }
 
 const fullHelpContent = '有什么我能帮你的吗？'
@@ -99,7 +99,7 @@ const clickNewChat = () => {
   resetChatList();
   // 重置 conversationId 并更新 URL
   conversationId.value = undefined
-  window.history.replaceState({}, '', '/chat')
+  window.history.replaceState({}, '', '/nuxt/chat')
 }
 
 let fetchQuestionAbortController: AbortController
