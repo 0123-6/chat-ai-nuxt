@@ -8,7 +8,7 @@ interface IChat {
   streamingAnswer?: string;
 }
 interface IProps {
-  id?: string,
+  conversationId?: string,
 }
 interface IResponseData {
   // 正常情况下为200
@@ -24,7 +24,7 @@ interface IStreamData {
   code: number;
   msg: string;
   data: {
-    id: string;
+    conversationId: string;
     partialAnswer?: string;
   };
 }
@@ -108,7 +108,7 @@ const fetchQuestionWithSSE = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: props.id,
+        conversationId: props.conversationId,
         question: lastChat.question,
       }),
       signal: fetchQuestionAbortController.signal,
