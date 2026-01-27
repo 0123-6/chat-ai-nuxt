@@ -25,6 +25,15 @@ interface IStreamData {
     partialAnswer?: string;
   };
 }
+// 历史会话响应结构
+interface IHistoryResponse {
+  code: number;
+  msg: string;
+  data: {
+    conversationId: string;
+    list: Array<{ question: string; answer: string }>;
+  };
+}
 
 const route = useRoute()
 // 使用 ref 存储 conversationId，初始值从路由参数获取
@@ -42,16 +51,6 @@ const fullHelpContent = '有什么我能帮你的吗？'
 const helpContent = ref<string>('')
 let timer: any
 let helpContentIndex = 0
-onMounted(() => {
-  timer = setInterval(() => {
-    helpContent.value = fullHelpContent.slice(0, helpContentIndex+1)
-    helpContentIndex++
-    if (helpContentIndex === fullHelpContent.length) {
-      clearInterval(timer)
-      timer = undefined
-    }
-  }, 40)
-})
 
 
 const historyChatList = [
@@ -101,6 +100,42 @@ const clickNewChat = () => {
   conversationId.value = undefined
   window.history.replaceState({}, '', '/nuxt/chat')
 }
+
+// 获取历史会话
+const fetchHistoryById = async () => {
+  if (!conversationId.value) return
+  try {
+    const response = await fetch('/api/ai/getHistoryById', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId: conversationId.value }),
+    })
+    const result: IHistoryResponse = await response.json()
+    if (result.code === 200 && result.data.list?.length) {
+      // 将历史会话转换为 IChat 格式
+      chatList.value = result.data.list.map(item => ({
+        question: item.question,
+        streamingAnswer: item.answer,
+      }))
+    }
+  } catch (err) {
+    console.error('获取历史会话失败：', err)
+  }
+}
+
+onMounted(() => {
+  // 获取历史会话
+  fetchHistoryById()
+  // 打字机效果
+  timer = setInterval(() => {
+    helpContent.value = fullHelpContent.slice(0, helpContentIndex+1)
+    helpContentIndex++
+    if (helpContentIndex === fullHelpContent.length) {
+      clearInterval(timer)
+      timer = undefined
+    }
+  }, 40)
+})
 
 let fetchQuestionAbortController: AbortController
 const fetchQuestionWithSSE = async () => {
