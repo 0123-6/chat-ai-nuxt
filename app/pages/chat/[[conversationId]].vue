@@ -27,7 +27,16 @@ interface IStreamData {
 }
 
 const route = useRoute()
-const conversationId = computed(() => route.params.conversationId as string | undefined)
+const router = useRouter()
+// 使用 ref 存储 conversationId，初始值从路由参数获取
+const conversationId = ref<string | undefined>(route.params.conversationId as string | undefined)
+
+// 更新 URL 中的 conversationId（不刷新页面）
+const updateConversationIdInUrl = (newId: string) => {
+  if (conversationId.value === newId) return
+  conversationId.value = newId
+  router.replace(`/chat/${newId}`)
+}
 
 const fullHelpContent = '有什么我能帮你的吗？'
 const helpContent = ref<string>('')
@@ -88,6 +97,9 @@ const clickHint = (newQuestion: string) => {
 const clickNewChat = () => {
   closeSSEConnection();
   resetChatList();
+  // 重置 conversationId 并跳转到 /chat
+  conversationId.value = undefined
+  router.replace('/chat')
 }
 
 let fetchQuestionAbortController: AbortController
@@ -135,8 +147,14 @@ const fetchQuestionWithSSE = async () => {
         }
         const dataStr = msg.replace(/^data: /, '');
         const streamData: IStreamData = JSON.parse(dataStr);
-        if (streamData.code === 200 && streamData.data.partialAnswer) {
-          lastChat.streamingAnswer = (lastChat.streamingAnswer || '') + streamData.data.partialAnswer;
+        if (streamData.code === 200) {
+          // 如果返回了新的 conversationId，更新 URL
+          if (streamData.data.conversationId && !conversationId.value) {
+            updateConversationIdInUrl(streamData.data.conversationId)
+          }
+          if (streamData.data.partialAnswer) {
+            lastChat.streamingAnswer = (lastChat.streamingAnswer || '') + streamData.data.partialAnswer;
+          }
         }
       }
     }

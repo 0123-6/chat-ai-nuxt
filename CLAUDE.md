@@ -32,7 +32,7 @@ pnpm preview
 ### 目录结构
 ```
 app/
-├── pages/chat.vue       # 主聊天页面（核心业务逻辑）
+├── pages/chat/[[conversationId]].vue       # 主聊天页面（核心业务逻辑）
 ├── components/          # 可复用组件
 ├── composables/         # Vue 组合式函数
 ├── layouts/             # 布局组件
@@ -52,10 +52,8 @@ interface IStreamData {
   code: number;
   msg: string;
   data: {
-    id: string;
-    loginStatus: boolean;
+    conversationId: string;
     partialAnswer?: string;
-    answer?: string;
   };
 }
 ```
