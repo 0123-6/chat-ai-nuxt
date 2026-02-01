@@ -265,138 +265,140 @@ watch(chatList, () => {
       </el-button>
       <div v-else>已经登录</div>
     </div>
-    <!--左侧-->
-    <div class="hidden w-65 h-full flex-col overflow-auto bg-[#f9f9f9] border-r border-[#ededed]">
-      <div class="w-full px-2 flex flex-col gap-y-2">
-        <!--头部-->
-        <div class="h-13 flex justify-between items-center">
-          <!--左侧logo-->
-          <button class="w-9 h-9 flex justify-center items-center hover:bg-[#00000012] rounded-xl">
-            <img
-              src="@/assets/icon/logo.svg"
-              alt=""
-              class="w-6 h-6"
-            >
-          </button>
-        </div>
-        <!--按钮区-->
-        <div
-          class="px-3 h-9 flex items-center gap-x-2 hover:bg-[#00000012] rounded-xl"
-          @click="clickNewChat"
-        >
-          <img src="@/assets/icon/write.svg" alt="" class="w-5 h-5">
-          <span>新聊天</span>
-        </div>
-        <span class="text-[#8f8f8f]">你的聊天</span>
-        <div
-          v-for="(item, index) in historyChatList"
-          :key="index"
-          class="px-2 h-9 flex items-center hover:bg-[#00000012] rounded-xl group relative"
-        >
-          <span class="w-full group-hover:w-48 text-sm line-clamp-1">{{item}}</span>
-          <div class="absolute right-2 hidden group-hover:flex">
-            <img
-              src="@/assets/icon/ellipsis-hor.svg"
-              alt=""
-              class="w-5 h-5 cursor-pointer"
-            >
+    <div class="w-full flex" :style="{height: 'calc(100% - 48px)'}">
+      <!--左侧-->
+      <div class="hidden w-65 h-full flex-col overflow-auto bg-[#f9f9f9] border-r border-[#ededed]">
+        <div class="w-full px-2 flex flex-col gap-y-2">
+          <!--头部-->
+          <div class="h-13 flex justify-between items-center">
+            <!--左侧logo-->
+            <button class="w-9 h-9 flex justify-center items-center hover:bg-[#00000012] rounded-xl">
+              <img
+                src="@/assets/icon/logo.svg"
+                alt=""
+                class="w-6 h-6"
+              >
+            </button>
+          </div>
+          <!--按钮区-->
+          <div
+            class="px-3 h-9 flex items-center gap-x-2 hover:bg-[#00000012] rounded-xl"
+            @click="clickNewChat"
+          >
+            <img src="@/assets/icon/write.svg" alt="" class="w-5 h-5">
+            <span>新聊天</span>
+          </div>
+          <span class="text-[#8f8f8f]">你的聊天</span>
+          <div
+            v-for="(item, index) in historyChatList"
+            :key="index"
+            class="px-2 h-9 flex items-center hover:bg-[#00000012] rounded-xl group relative"
+          >
+            <span class="w-full group-hover:w-48 text-sm line-clamp-1">{{item}}</span>
+            <div class="absolute right-2 hidden group-hover:flex">
+              <img
+                src="@/assets/icon/ellipsis-hor.svg"
+                alt=""
+                class="w-5 h-5 cursor-pointer"
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <!--右侧-->
-    <div class="grow h-full py-5 flex flex-col justify-center items-center gap-y-6">
-      <!--内容区-->
-      <div
-        ref="connectRef"
-        class="w-4/5 max-w-200 flex flex-col overflow-auto"
-        :class="[
+      <!--右侧-->
+      <div class="grow h-full py-5 flex flex-col justify-center items-center gap-y-6">
+        <!--内容区-->
+        <div
+          ref="connectRef"
+          class="w-4/5 max-w-200 flex flex-col overflow-auto"
+          :class="[
           chatList.length ? 'grow' : '',
         ]"
-      >
-        <div
-          v-if="!chatList.length"
-          class="w-full h-full flex flex-col justify-center items-center gap-y-2"
-        >
-          <span class="mb-5 h-9 text-black font-bold text-2xl">{{helpContent}}</span>
-          <!--<HintList @click="clickHint"/>-->
-        </div>
-        <div
-          v-else
-          class="w-full h-full flex flex-col gap-y-13"
         >
           <div
-            v-for="(item, index) in chatList"
-            :key="index"
-            class="flex flex-col gap-y-13"
+            v-if="!chatList.length"
+            class="w-full h-full flex flex-col justify-center items-center gap-y-2"
           >
-            <!--问题-->
-            <div class="flex justify-end items-center relative">
-              <div
-                class="max-w-112.5 bg-[#f5f5f5] px-4 py-2.5 rounded-xl"
-              >
-                <span class="w-full break-all">{{item.question}}</span>
-              </div>
-            </div>
-            <!--回答-->
+            <span class="mb-5 h-9 text-black font-bold text-2xl">{{helpContent}}</span>
+            <!--<HintList @click="clickHint"/>-->
+          </div>
+          <div
+            v-else
+            class="w-full h-full flex flex-col gap-y-13"
+          >
             <div
-              class="ai-answer-markdown"
-              v-html="renderMarkdown(item.streamingAnswer)"
-            ></div>
+              v-for="(item, index) in chatList"
+              :key="index"
+              class="flex flex-col gap-y-13"
+            >
+              <!--问题-->
+              <div class="flex justify-end items-center relative">
+                <div
+                  class="max-w-112.5 bg-[#f5f5f5] px-4 py-2.5 rounded-xl"
+                >
+                  <span class="w-full break-all">{{item.question}}</span>
+                </div>
+              </div>
+              <!--回答-->
+              <div
+                class="ai-answer-markdown"
+                v-html="renderMarkdown(item.streamingAnswer)"
+              ></div>
+            </div>
           </div>
         </div>
-      </div>
-      <!--用户交互区-->
-      <div class="w-4/5 max-w-200 rounded-2xl border border-[#e0e0e0] flex flex-col p-3">
+        <!--用户交互区-->
+        <div class="w-4/5 max-w-200 rounded-2xl border border-[#e0e0e0] flex flex-col p-3">
         <textarea
-              v-model="question"
-              placeholder="询问任何问题"
-              rows="4"
-              class="box-border min-h-14 max-h-40 resize-none"
-              @keydown.enter.prevent="clickSend"
-            ></textarea>
-        <div class="flex justify-end items-center">
-          <!--发送按钮-->
-          <button
-            v-show="!isFetching"
-            class="w-8 h-8 flex justify-center items-center rounded-full"
-            :class="[
+          v-model="question"
+          placeholder="询问任何问题"
+          rows="4"
+          class="box-border min-h-14 max-h-40 resize-none"
+          @keydown.enter.prevent="clickSend"
+        ></textarea>
+          <div class="flex justify-end items-center">
+            <!--发送按钮-->
+            <button
+              v-show="!isFetching"
+              class="w-8 h-8 flex justify-center items-center rounded-full"
+              :class="[
               !!question ? 'bg-[#0057ff] text-white' : 'bg-[#d9d9d9] text-[#eeeeee] cursor-not-allowed',
             ]"
-            @click="clickSend"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              fill="none"
-              viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="m3.543 8.883 7.042-7.047a2 2 0 0 1 2.828 0l7.043 7.046a1 1 0 0 1 0 1.415l-.701.701a1 1 0 0 1-1.414 0L13.3 5.956v15.792a1 1 0 0 1-1 1h-.99a1 1 0 0 1-1-1V6.342l-4.654 4.656a1 1 0 0 1-1.414 0l-.7-.7a1 1 0 0 1 0-1.415">
-              </path>
-            </svg>
-          </button>
-          <!--停止按钮-->
-          <button
-            v-show="isFetching"
-            class="w-8 h-8 flex justify-center items-center rounded-lg hover:bg-[#f6f6f6] text-[24px]"
-            @click="clickStopFetch"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              fill="none"
-              viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                fill-rule="evenodd"
-                d="M12 23c6.075 0 11-4.925 11-11S18.075 1 12 1 1 5.925 1 12s4.925 11 11 11m0-20a9 9 0 1 1 0 18 9 9 0 0 1 0-18m-2 5.5A1.5 1.5 0 0 0 8.5 10v4a1.5 1.5 0 0 0 1.5 1.5h4a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 14 8.5z"
-                clip-rule="evenodd">
-              </path>
-            </svg>
-          </button>
+              @click="clickSend"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                fill="none"
+                viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="m3.543 8.883 7.042-7.047a2 2 0 0 1 2.828 0l7.043 7.046a1 1 0 0 1 0 1.415l-.701.701a1 1 0 0 1-1.414 0L13.3 5.956v15.792a1 1 0 0 1-1 1h-.99a1 1 0 0 1-1-1V6.342l-4.654 4.656a1 1 0 0 1-1.414 0l-.7-.7a1 1 0 0 1 0-1.415">
+                </path>
+              </svg>
+            </button>
+            <!--停止按钮-->
+            <button
+              v-show="isFetching"
+              class="w-8 h-8 flex justify-center items-center rounded-lg hover:bg-[#f6f6f6] text-[24px]"
+              @click="clickStopFetch"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                fill="none"
+                viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  d="M12 23c6.075 0 11-4.925 11-11S18.075 1 12 1 1 5.925 1 12s4.925 11 11 11m0-20a9 9 0 1 1 0 18 9 9 0 0 1 0-18m-2 5.5A1.5 1.5 0 0 0 8.5 10v4a1.5 1.5 0 0 0 1.5 1.5h4a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 14 8.5z"
+                  clip-rule="evenodd">
+                </path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
