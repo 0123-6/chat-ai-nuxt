@@ -257,13 +257,15 @@ watch(chatList, () => {
   <div class="w-full h-full flex flex-col">
     <!--头部-->
     <div class="w-full px-6 h-12 flex justify-end items-center">
-      <el-button
-        v-if="!userInfo"
-        type="primary"
-      >
-        登录
-      </el-button>
-      <div v-else>已经登录</div>
+      <ClientOnly>
+        <el-button
+          v-if="!userInfo"
+          type="primary"
+        >
+          登录
+        </el-button>
+        <div v-else>已经登录</div>
+      </ClientOnly>
     </div>
     <div class="w-full flex" :style="{height: 'calc(100% - 48px)'}">
       <!--左侧-->
