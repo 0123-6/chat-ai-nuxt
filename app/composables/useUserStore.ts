@@ -11,35 +11,23 @@ export interface IUserInfo {
 }
 
 // 用户全局状态
-export const useUserStore = () => {
-  const userInfo = useState<IUserInfo | null>('userInfo', () => null)
+export const userInfo = ref(null)
 
-  // 设置用户信息
-  const setUserInfo = (info: IUserInfo | null) => {
-    userInfo.value = info
-  }
-
-  // 获取用户信息
-  const fetchUserInfo = async () => {
-    try {
-      const res = await $fetch<{
-        code: number
-        msg: string
-        data: IUserInfo
-      }>('/api/user/getUserInfo', {
-        method: 'POST',
-      })
-      if (res.code === 200) {
-        setUserInfo(res.data)
-      }
-    } catch {
-      // 失败不报错
+// 获取用户信息
+export const fetchUserInfo = async () => {
+  try {
+    const response = await fetch('/api/user/getUserInfo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const result = await response.json()
+    if (result.code !== 200) {
+      console.log('未登录')
+      return
     }
+    userInfo.value = result.data
+  } catch (e) {
+    ElMessage.error(e)
   }
 
-  return {
-    userInfo,
-    setUserInfo,
-    fetchUserInfo,
-  }
 }

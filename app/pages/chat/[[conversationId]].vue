@@ -254,7 +254,17 @@ watch(chatList, () => {
 </script>
 
 <template>
-  <div class="w-full h-full flex">
+  <div class="w-full h-full flex flex-col">
+    <!--头部-->
+    <div class="w-full px-6 h-12 flex justify-end items-center">
+      <el-button
+        v-if="!userInfo"
+        type="primary"
+      >
+        登录
+      </el-button>
+      <div v-else>已经登录</div>
+    </div>
     <!--左侧-->
     <div class="hidden w-65 h-full flex-col overflow-auto bg-[#f9f9f9] border-r border-[#ededed]">
       <div class="w-full px-2 flex flex-col gap-y-2">

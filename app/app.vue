@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { fetchUserInfo } = useUserStore()
+import {fetchUserInfo} from "~/composables/useUserStore";
 
 // 首次进入网站时获取用户信息
 fetchUserInfo()
