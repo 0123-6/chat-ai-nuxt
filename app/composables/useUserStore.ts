@@ -27,7 +27,9 @@ export const fetchUserInfo = async () => {
     }
     userInfo.value = result.data
   } catch (e) {
-    ElMessage.error(e)
+    if (import.meta.client) {
+      ElMessage.error(e instanceof Error ? e.message : String(e))
+    }
   }
 
 }
