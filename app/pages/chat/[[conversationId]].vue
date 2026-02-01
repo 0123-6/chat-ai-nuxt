@@ -241,6 +241,7 @@ const renderMarkdown = (content: string | undefined): string => {
 };
 
 const connectRef = ref<HTMLDivElement | null>(null)
+const loginDialogVisible = ref(false)
 watch(chatList, () => {
   if (!connectRef.value) {
     return
@@ -261,6 +262,7 @@ watch(chatList, () => {
         <el-button
           v-if="!userInfo"
           type="primary"
+          @click="loginDialogVisible = true"
         >
           登录
         </el-button>
@@ -404,6 +406,9 @@ watch(chatList, () => {
         </div>
       </div>
     </div>
+
+    <!-- 登录弹窗 -->
+    <LoginDialog v-model="loginDialogVisible" />
   </div>
 </template>
 
