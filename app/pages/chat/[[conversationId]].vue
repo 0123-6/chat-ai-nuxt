@@ -117,6 +117,11 @@ const fetchHistoryById = async () => {
         question: item.question,
         streamingAnswer: item.answer,
       }))
+    } else if (result.code !== 200) {
+      ElMessage.error(result.msg)
+      // conversationId 无效（过期、已删除或非法），清除 URL 中的 conversationId
+      conversationId.value = undefined
+      window.history.replaceState({}, '', '/nuxt/chat')
     }
   } catch (err) {
     console.error('获取历史会话失败：', err)

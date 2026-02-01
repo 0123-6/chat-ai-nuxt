@@ -1,0 +1,2 @@
+pages/chat/[[conversationId]].vue文件有1个bug,当url中chat/conversationId的conversationId过期或服务器已经删除此次对话,
+或者是用户拼接的非randomUuid()字段,获取ai/getHistoryById返回code为非200,这种情况请删除location.pathname中的conversationId
