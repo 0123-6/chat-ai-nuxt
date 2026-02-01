@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 安装依赖（使用 pnpm）
 pnpm install
 
-# 启动开发服务器（端口 3000，支持外部访问）
+# 启动开发服务器（端口 4003，支持外部访问）
 pnpm dev
 
 # 构建生产版本
