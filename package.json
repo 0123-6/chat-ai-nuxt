@@ -6,8 +6,8 @@
     "build": "nuxt build",
     "dev": "nuxt dev --host",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "deploy": "npx tsx scripts/deploy.ts"
   },
   "dependencies": {
     "highlight.js": "^11.11.1",
