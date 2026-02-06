@@ -10,6 +10,7 @@
     "deploy": "npx tsx scripts/deploy.ts"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "highlight.js": "^11.11.1",
     "marked": "^17.0.1",
     "nuxt": "^4.2.2",
