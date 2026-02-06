@@ -58,4 +58,13 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@element-plus/nuxt'],
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        allowImportingTsExtensions: true,
+        strictNullChecks: false,
+        strictBindCallApply: false,
+      },
+    },
+  },
 })
