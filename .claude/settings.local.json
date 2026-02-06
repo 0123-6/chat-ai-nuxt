@@ -10,7 +10,8 @@
       "Bash(findstr:*)",
       "Bash(pnpm run deploy:*)",
       "Bash(ssh:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(npx nuxi prepare:*)"
     ]
   }
 }
