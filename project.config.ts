@@ -29,7 +29,7 @@ interface IProjectConfig {
 // 项目的配置文件
 export const projectConfig: IProjectConfig = {
   projectName: 'nuxt-project',
-  baseUrl: '/vue/',
+  baseUrl: '/nuxt/',
   isUseCdn: true,
   apiPrefix: {
     DEFAULT: '/api/',
