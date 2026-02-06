@@ -37,8 +37,8 @@
 
 
     "paths": {
-      "@/*": ["./src/*"],
-      "@views/*": ["./src/views/*"]
+      "@/*": ["./app/*"],
+      "@views/*": ["./app/views/*"]
     },
     "allowSyntheticDefaultImports": true,
     // next项目
@@ -49,12 +49,12 @@
     ]
   },
   "include": [
-    "src",
+    "app",
     "env.d.ts",
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
+    "app/**/*",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "app/**/*.vue",
     "*.ts",
     "next-env.d.ts",
     "**/*.ts",
