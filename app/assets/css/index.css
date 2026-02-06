@@ -444,3 +444,49 @@
   }
 
 }
+
+/* 弹窗层级高于抽屉 */
+.el-overlay:has(.logout-confirm-box),
+.el-overlay:has(.drawer-top-msgbox) {
+  z-index: 3000 !important;
+}
+
+/* 消息提示层级最高 */
+.el-message {
+  z-index: 9999 !important;
+}
+
+/* 登录弹窗层级高于其他 */
+.el-overlay:has(.login-dialog) {
+  z-index: 2500 !important;
+}
+
+/* 移动端弹窗优化 */
+@media (max-width: 768px) {
+  .el-message-box {
+    width: 85vw !important;
+    max-width: 320px !important;
+  }
+
+  .el-message-box__btns {
+    padding: 12px 16px 16px !important;
+  }
+
+  .el-message-box__btns .el-button {
+    min-width: 80px !important;
+    padding: 10px 20px !important;
+  }
+
+  /* 禁用弹窗过渡动画（保留抽屉动画） */
+  .el-overlay:has(.el-dialog),
+  .el-overlay:has(.el-message-box),
+  .el-dialog,
+  .el-message-box {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .el-overlay-dialog {
+    transition: none !important;
+  }
+}
