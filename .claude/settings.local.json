@@ -9,7 +9,8 @@
       "Bash(pnpm dev:*)",
       "Bash(findstr:*)",
       "Bash(pnpm run deploy:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(dir:*)"
     ]
   }
 }
