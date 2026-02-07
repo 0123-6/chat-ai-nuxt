@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ArrowLeft } from '@element-plus/icons-vue'
-import {fetchHistoryList} from "./historyStore.ts";
 import {useIsMobile} from "~/util/hooks/useDevice.ts";
 import {fetchUserInfo} from "~/store/userInfo.ts";
+import {fetchHistoryList} from "~/store/historyStore.ts";
 
 const props = defineProps<{
   modelValue: boolean
