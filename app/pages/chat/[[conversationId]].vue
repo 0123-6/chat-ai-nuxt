@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import hljs from "highlight.js";
 import { marked } from "marked";
+import {useResetRef} from "~/util/hooks/useResetState.ts";
+import {isUserInfoLoaded, userInfo} from "~/store/userInfo.ts";
 
 interface IChat {
   question: string;

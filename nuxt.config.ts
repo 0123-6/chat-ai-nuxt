@@ -2,7 +2,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import compression, {defineAlgorithm} from "vite-plugin-compression2";
 import zlib from 'node:zlib'
-import {projectConfig} from "~~/project.config.ts";
+import {projectConfig} from "./project.config.ts";
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
