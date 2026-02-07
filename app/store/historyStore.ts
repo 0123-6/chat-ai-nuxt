@@ -1,4 +1,6 @@
 // 历史会话类型
+import {userInfo} from "~/store/userInfo.ts";
+
 export interface IHistory {
   conversationId: string
   title: string

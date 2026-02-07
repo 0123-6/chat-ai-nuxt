@@ -1,6 +1,6 @@
 <script setup lang="ts">
-
-import {fetchHistoryList, isFetchHistoryList, type IHistory, historyList} from "./historyStore"
+import {logout, userInfo} from "~/store/userInfo.ts";
+import {fetchHistoryList, historyList, type IHistory, isFetchHistoryList} from "~/store/historyStore.ts";
 
 const props = defineProps<{
   modelValue: boolean
