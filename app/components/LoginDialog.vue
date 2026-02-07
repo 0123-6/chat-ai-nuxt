@@ -3,6 +3,8 @@ import { ArrowLeft } from '@element-plus/icons-vue'
 import {useIsMobile} from "~/util/hooks/useDevice.ts";
 import {fetchUserInfo} from "~/store/userInfo.ts";
 import {fetchHistoryList} from "~/store/historyStore.ts";
+import {baseFetch} from '~/util/api.ts'
+import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
 
 const props = defineProps<{
   modelValue: boolean
@@ -24,7 +26,6 @@ const agreed = ref(false)
 const codeDigits = ref(['', '', '', ''])
 const codeInputRefs = ref<HTMLInputElement[]>([])
 const countdown = ref(0)
-const loading = ref(false)
 let countdownTimer: ReturnType<typeof setInterval> | null = null
 
 // 完整验证码
@@ -40,6 +41,27 @@ const canSubmit = computed(() => {
 // 验证码校验（4位数字）
 const isValidCode = computed(() => /^\d{4}$/.test(code.value))
 
+const codeFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'auth/getCode',
+    mockProd: true,
+    data: {phone: phone.value},
+  }),
+})
+
+const loginFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'loginByPhone',
+    mockProd: true,
+    data: {
+      phone: phone.value,
+      code: code.value,
+    },
+  }),
+})
+
+const loading = computed(() => codeFetcher.isFetching || loginFetcher.isFetching)
+
 // 开始倒计时
 const startCountdown = () => {
   countdown.value = 60
@@ -54,33 +76,18 @@ const startCountdown = () => {
 
 // 获取验证码接口
 const fetchCode = async () => {
-  try {
-    const response = await fetch('/api/auth/getCode', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone.value }),
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      ElMessage.success('验证码已发送')
-      startCountdown()
-      return true
-    } else {
-      ElMessage.error(result.msg || '验证码发送失败')
-      return false
-    }
-  } catch (e) {
-    ElMessage.error('网络错误，请稍后重试')
-    return false
+  const success = await codeFetcher.doFetch()
+  if (success) {
+    ElMessage.success('验证码已发送')
+    startCountdown()
   }
+  return success
 }
 
 // 点击下一步，进入验证码输入
 const handleNext = async () => {
   if (!canSubmit.value || loading.value) return
-  loading.value = true
   const success = await fetchCode()
-  loading.value = false
   if (success) {
     step.value = 'code'
   }
@@ -138,55 +145,31 @@ const handleCodePaste = (event: ClipboardEvent) => {
 // 重新发送验证码
 const handleResend = async () => {
   if (countdown.value > 0 || loading.value) return
-  loading.value = true
   await fetchCode()
-  loading.value = false
 }
 
 // 登录接口
 const loginByPhone = async () => {
   if (!isValidCode.value || loading.value) return
-  loading.value = true
-  try {
-    const response = await fetch('/api/loginByPhone', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone: phone.value,
-        code: code.value,
-      }),
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      // 登录成功后获取用户信息
-      await fetchUserInfo()
-      // 如果当前 URL 有 conversationId，绑定到当前用户
-      // 从 URL 路径中提取 conversationId（格式：/nuxt/chat/xxx）
-      const pathMatch = window.location.pathname.match(/\/chat\/([^/]+)/)
-      const currentConversationId = pathMatch?.[1]
-      if (currentConversationId) {
-        try {
-          await fetch('/api/ai/conversationIdToUser', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversationId: currentConversationId }),
-          })
-          fetchHistoryList()
-        } catch (e) {
-          // 忽略绑定失败，不影响登录流程
-          console.error('绑定会话失败：', e)
-        }
-      }
-      ElMessage.success('登录成功')
-      // 关闭弹窗，状态重置由 watch(visible) 处理
-      visible.value = false
-    } else {
-      ElMessage.error(result.msg || '登录失败')
+  const success = await loginFetcher.doFetch()
+  if (success) {
+    // 登录成功后获取用户信息
+    await fetchUserInfo()
+    // 如果当前 URL 有 conversationId，绑定到当前用户
+    // 从 URL 路径中提取 conversationId（格式：/nuxt/chat/xxx）
+    const pathMatch = window.location.pathname.match(/\/chat\/([^/]+)/)
+    const currentConversationId = pathMatch?.[1]
+    if (currentConversationId) {
+      await baseFetch({
+        url: 'ai/conversationIdToUser',
+        mockProd: true,
+        data: {conversationId: currentConversationId},
+      })
+      fetchHistoryList()
     }
-  } catch (e) {
-    ElMessage.error('网络错误，请稍后重试')
-  } finally {
-    loading.value = false
+    ElMessage.success('登录成功')
+    // 关闭弹窗，状态重置由 watch(visible) 处理
+    visible.value = false
   }
 }
 

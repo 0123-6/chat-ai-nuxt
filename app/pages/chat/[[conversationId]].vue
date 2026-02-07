@@ -3,6 +3,8 @@ import hljs from "highlight.js";
 import { marked } from "marked";
 import {useResetRef} from "~/util/hooks/useResetState.ts";
 import {isUserInfoLoaded, userInfo} from "~/store/userInfo.ts";
+import {streamFetch} from '~/util/api.ts'
+import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
 
 interface IChat {
   question: string;
@@ -76,30 +78,32 @@ const clickNewChat = () => {
 }
 
 // 获取历史会话
-const fetchHistoryById = async () => {
-  if (!conversationId.value) return
-  try {
-    const response = await fetch('/api/ai/getHistoryById', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conversationId: conversationId.value }),
-    })
-    const result: IHistoryResponse = await response.json()
-    if (result.code === 200 && result.data.list?.length) {
-      // 将历史会话转换为 IChat 格式
-      chatList.value = result.data.list.map(item => ({
+const historyByIdFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'ai/getHistoryById',
+    mockProd: true,
+    data: {conversationId: conversationId.value},
+  }),
+  transformResponseDataFn: (data) => {
+    if (data?.list?.length) {
+      chatList.value = data.list.map((item: any) => ({
         question: item.question,
         streamingAnswer: item.answer,
       }))
-    } else if (result.code !== 200) {
-      ElMessage.error(result.msg)
+    }
+  },
+  finalCallback: (fetchObject) => {
+    if (!fetchObject.isOk && fetchObject.reason !== 'AbortError') {
       // conversationId 无效（过期、已删除或非法），清除 URL 中的 conversationId
       conversationId.value = undefined
       window.history.replaceState({}, '', '/nuxt/chat')
     }
-  } catch (err) {
-    console.error('获取历史会话失败：', err)
-  }
+  },
+})
+
+const fetchHistoryById = async () => {
+  if (!conversationId.value) return
+  await historyByIdFetcher.doFetch()
 }
 
 onMounted(() => {
@@ -130,62 +134,30 @@ const fetchQuestionWithSSE = async () => {
   showScrollToBottom.value = false
   fetchQuestionAbortController = new AbortController()
 
-  try {
-    const response = await fetch('/api/ai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        conversationId: conversationId.value,
-        question: lastChat.question,
-      }),
-      signal: fetchQuestionAbortController.signal,
-    });
-
-    if (!response.ok || !response.body) throw new Error('请求失败');
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let buffer = '';
-
-    // 循环读取流式数据
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const messages = buffer.split('\n\n');
-      buffer = messages.pop() || '';
-
-      for (const msg of messages) {
-        if (!msg) continue;
-        if (msg === 'data: [DONE]') {
-          closeSSEConnection();
-          return;
+  const {isOk, reason} = await streamFetch<IStreamData>({
+    url: '/api/ai/chat',
+    data: {
+      conversationId: conversationId.value,
+      question: lastChat.question,
+    },
+    signal: fetchQuestionAbortController.signal,
+    onMessage: (streamData) => {
+      if (streamData.code === 200) {
+        // 如果返回了新的 conversationId，更新 URL
+        if (streamData.data.conversationId && !conversationId.value) {
+          updateConversationIdInUrl(streamData.data.conversationId)
         }
-        const dataStr = msg.replace(/^data: /, '');
-        const streamData: IStreamData = JSON.parse(dataStr);
-        if (streamData.code === 200) {
-          // 如果返回了新的 conversationId，更新 URL
-          if (streamData.data.conversationId && !conversationId.value) {
-            updateConversationIdInUrl(streamData.data.conversationId)
-          }
-          if (streamData.data.partialAnswer) {
-            lastChat.streamingAnswer = (lastChat.streamingAnswer || '') + streamData.data.partialAnswer;
-          }
+        if (streamData.data.partialAnswer) {
+          lastChat.streamingAnswer = (lastChat.streamingAnswer || '') + streamData.data.partialAnswer;
         }
       }
-    }
-  } catch (err) {
-    if ((err as Error).name === 'AbortError') {
-      console.log('手动停止的错误')
-      return
-    }
+    },
+  })
 
-    console.error('POST 流式请求失败：', err);
+  if (!isOk && reason !== 'AbortError') {
     lastChat.streamingAnswer = '请求异常，请稍后重试';
-  } finally {
-    closeSSEConnection();
   }
+  closeSSEConnection();
 };
 
 // 停止请求

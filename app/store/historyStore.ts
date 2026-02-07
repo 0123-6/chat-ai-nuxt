@@ -1,5 +1,6 @@
 // 历史会话类型
 import {userInfo} from "~/store/userInfo.ts";
+import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
 
 export interface IHistory {
   conversationId: string
@@ -8,24 +9,21 @@ export interface IHistory {
 
 // 历史会话列表
 export const historyList = ref<IHistory[]>([])
-export const isFetchHistoryList = ref(false)
+
+const historyListFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'ai/getHistoryByUser',
+    mockProd: true,
+  }),
+  transformResponseDataFn: (data) => {
+    historyList.value = data || []
+  },
+})
+
+export const isFetchHistoryList = computed(() => historyListFetcher.isFetching)
 
 // 获取历史会话列表
 export const fetchHistoryList = async () => {
   if (!userInfo.value) return
-  isFetchHistoryList.value = true
-  try {
-    const response = await fetch('/api/ai/getHistoryByUser', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      historyList.value = result.data || []
-    }
-  } catch (e) {
-    console.error('获取历史会话列表失败：', e)
-  } finally {
-    isFetchHistoryList.value = false
-  }
+  await historyListFetcher.doFetch()
 }

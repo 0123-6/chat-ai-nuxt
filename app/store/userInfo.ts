@@ -1,3 +1,5 @@
+import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
+
 // 用户信息类型
 export interface IUserInfo {
   // 账号,唯一标识
@@ -16,45 +18,37 @@ export const userInfo = ref(null)
 export const isUserInfoLoaded = ref(false)
 
 // 获取用户信息
-export const fetchUserInfo = async () => {
-  try {
-    const response = await fetch('/api/user/getUserInfo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const result = await response.json()
-    if (result.code !== 200) {
-      console.log('未登录')
-      return
-    }
-    userInfo.value = result.data
-  } catch (e) {
-    if (import.meta.client) {
-      ElMessage.error(e instanceof Error ? e.message : String(e))
-    }
-  } finally {
+const userInfoFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'user/getUserInfo',
+    mockProd: true,
+    showErrorMessage: false,
+  }),
+  transformResponseDataFn: (data) => {
+    userInfo.value = data
+  },
+  finalCallback: () => {
     isUserInfoLoaded.value = true
-  }
+  },
+})
+
+export const fetchUserInfo = async () => {
+  await userInfoFetcher.doFetch()
 }
 
 // 退出登录
+const logoutFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'user/logout',
+    mockProd: true,
+  }),
+})
+
 export const logout = async () => {
-  try {
-    const response = await fetch('/api/user/logout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      userInfo.value = null
-      ElMessage.success('已退出登录')
-      return true
-    } else {
-      ElMessage.error(result.msg || '退出失败')
-      return false
-    }
-  } catch (e) {
-    ElMessage.error('网络错误，请稍后重试')
-    return false
+  const success = await logoutFetcher.doFetch()
+  if (success) {
+    userInfo.value = null
+    ElMessage.success('已退出登录')
   }
+  return success
 }

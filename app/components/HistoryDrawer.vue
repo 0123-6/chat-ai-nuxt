@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {logout, userInfo} from "~/store/userInfo.ts";
 import {fetchHistoryList, historyList, type IHistory, isFetchHistoryList} from "~/store/historyStore.ts";
+import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
 
 const props = defineProps<{
   modelValue: boolean
@@ -38,7 +39,23 @@ const handleSelectHistory = (item: IHistory) => {
   visible.value = false
 }
 
-// 删除确认
+// 删除相关
+const deleteTargetId = ref('')
+const deleteFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'ai/deleteConversationId',
+    mockProd: true,
+    data: {conversationId: deleteTargetId.value},
+  }),
+  transformResponseDataFn: () => {
+    const index = historyList.value.findIndex(h => h.conversationId === deleteTargetId.value)
+    if (index > -1) {
+      historyList.value.splice(index, 1)
+    }
+    ElMessage.success('删除成功')
+  },
+})
+
 const handleDelete = async (item: IHistory) => {
   // 不允许删除当前正在查看的会话
   if (props.currentConversationId === item.conversationId) {
@@ -57,23 +74,8 @@ const handleDelete = async (item: IHistory) => {
         customClass: 'drawer-top-msgbox',
       }
     )
-    // 调用删除接口
-    const response = await fetch('/api/ai/deleteConversationId', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({conversationId: item.conversationId}),
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      // 原地更新数据
-      const index = historyList.value.findIndex(h => h.conversationId === item.conversationId)
-      if (index > -1) {
-        historyList.value.splice(index, 1)
-      }
-      ElMessage.success('删除成功')
-    } else {
-      ElMessage.error(result.msg || '删除失败')
-    }
+    deleteTargetId.value = item.conversationId
+    await deleteFetcher.doFetch()
   } catch (e) {
     // 用户取消操作
     if (e !== 'cancel' && (e as any) !== 'cancel') {
@@ -82,7 +84,27 @@ const handleDelete = async (item: IHistory) => {
   }
 }
 
-// 重命名
+// 重命名相关
+const renameTargetId = ref('')
+const renameNewTitle = ref('')
+const renameFetcher = useBaseFetch({
+  fetchOptionFn: () => ({
+    url: 'ai/renameConversationId',
+    mockProd: true,
+    data: {
+      conversationId: renameTargetId.value,
+      newTitle: renameNewTitle.value,
+    },
+  }),
+  transformResponseDataFn: () => {
+    const target = historyList.value.find(h => h.conversationId === renameTargetId.value)
+    if (target) {
+      target.title = renameNewTitle.value
+    }
+    ElMessage.success('重命名成功')
+  },
+})
+
 const handleRename = async (item: IHistory) => {
   try {
     const {value: newTitle} = await ElMessageBox.prompt(
@@ -101,26 +123,9 @@ const handleRename = async (item: IHistory) => {
         customClass: 'drawer-top-msgbox',
       }
     )
-    // 调用重命名接口
-    const response = await fetch('/api/ai/renameConversationId', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        conversationId: item.conversationId,
-        newTitle: newTitle.trim(),
-      }),
-    })
-    const result = await response.json()
-    if (result.code === 200) {
-      // 原地更新数据
-      const target = historyList.value.find(h => h.conversationId === item.conversationId)
-      if (target) {
-        target.title = newTitle.trim()
-      }
-      ElMessage.success('重命名成功')
-    } else {
-      ElMessage.error(result.msg || '重命名失败')
-    }
+    renameTargetId.value = item.conversationId
+    renameNewTitle.value = newTitle.trim()
+    await renameFetcher.doFetch()
   } catch (e) {
     // 用户取消操作
     if (e !== 'cancel' && (e as any) !== 'cancel') {
