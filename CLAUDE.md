@@ -32,11 +32,14 @@ pnpm preview
 ### 目录结构
 ```
 app/
-├── pages/chat/[[conversationId]].vue       # 主聊天页面（核心业务逻辑）
-├── components/          # 可复用组件
-├── composables/         # Vue 组合式函数
-├── layouts/             # 布局组件
-└── assets/css/          # 全局样式和 Tailwind 主题
+├── pages/chat/[[conversationId]].vue  # 主聊天页面（核心业务逻辑）
+├── components/                        # 可复用组件（LoginDialog、HistoryDrawer）
+├── store/                             # 全局状态管理（userInfo、historyStore）
+├── util/                              # 工具函数
+│   ├── api.ts                         # 底层请求（baseFetch、streamFetch）
+│   └── hooks/                         # 组合式函数（useBaseFetch、useResetState 等）
+├── layouts/                           # 布局组件
+└── assets/css/                        # 全局样式和 Tailwind 主题
 ```
 
 ### 关键数据结构
@@ -58,8 +61,14 @@ interface IStreamData {
 }
 ```
 
-### 核心功能模块（app/pages/chat.vue）
-- **SSE 流式处理**: 使用 fetch + ReadableStream 实时接收 AI 回答
+### 请求架构
+- **底层**: `baseFetch`（app/util/api.ts）— 封装原生 fetch，统一错误处理、JSON/FormData/文件流
+- **组合式封装**: `useBaseFetch`（app/util/hooks/useBaseFetch.ts）— 自动管理 isFetching 状态、自动 abort 上次请求
+- **SSE 流式**: `streamFetch`（app/util/api.ts）— 处理 Server-Sent Events 流式响应
+- **所有业务请求均通过 `useBaseFetch` 或 `streamFetch`，不直接使用原生 fetch**
+
+### 核心功能模块（app/pages/chat/[[conversationId]].vue）
+- **SSE 流式处理**: 使用 `streamFetch` 实时接收 AI 回答
 - **Markdown 渲染**: marked + highlight.js（GitHub Dark 主题）
 - **请求中止**: AbortController 支持停止正在进行的对话
 
@@ -76,6 +85,7 @@ interface IStreamData {
 ```
 
 ### 组合式函数
+- `useBaseFetch`: 通用请求封装，自动管理 isFetching/abort，支持 transformResponseDataFn
 - `useResetRef` / `useResetReactive`: 为响应式数据提供重置到初始状态的能力
 
 ## 注意事项

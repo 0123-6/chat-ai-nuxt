@@ -11,7 +11,11 @@
       "Bash(pnpm run deploy:*)",
       "Bash(ssh:*)",
       "Bash(dir:*)",
-      "Bash(npx nuxi prepare:*)"
+      "Bash(npx nuxi prepare:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npx nuxi typecheck:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }
