@@ -77,8 +77,7 @@ const handleDelete = async (item: IHistory) => {
     deleteTargetId.value = item.conversationId
     await deleteFetcher.doFetch()
   } catch (e) {
-    // 用户取消操作
-    if (e !== 'cancel' && (e as any) !== 'cancel') {
+    if (e !== 'cancel') {
       console.error('删除失败：', e)
     }
   }
@@ -127,8 +126,7 @@ const handleRename = async (item: IHistory) => {
     renameNewTitle.value = newTitle.trim()
     await renameFetcher.doFetch()
   } catch (e) {
-    // 用户取消操作
-    if (e !== 'cancel' && (e as any) !== 'cancel') {
+    if (e !== 'cancel') {
       console.error('重命名失败：', e)
     }
   }
@@ -159,10 +157,6 @@ const handleLogout = async () => {
   }
 }
 
-// 暴露方法供外部调用
-defineExpose({
-  fetchHistoryList,
-})
 </script>
 
 <template>
@@ -244,11 +238,11 @@ defineExpose({
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 rounded-full bg-[#0057ff] flex items-center justify-center text-white font-medium shrink-0">
-            {{ (userInfo as any).nickname?.[0] || (userInfo as any).phone?.[0] || 'U' }}
+            {{ userInfo!.nickname?.[0] || userInfo!.phone?.[0] || 'U' }}
           </div>
           <div class="flex flex-col">
-            <span class="font-medium">{{ (userInfo as any).nickname || '用户' }}</span>
-            <span class="text-sm text-gray-500">{{ (userInfo as any).phone }}</span>
+            <span class="font-medium">{{ userInfo!.nickname || '用户' }}</span>
+            <span class="text-sm text-gray-500">{{ userInfo!.phone }}</span>
           </div>
         </div>
         <el-button type="danger" text @click="handleLogout">

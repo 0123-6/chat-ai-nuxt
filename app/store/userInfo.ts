@@ -13,7 +13,7 @@ export interface IUserInfo {
 }
 
 // 用户全局状态
-export const userInfo = ref(null)
+export const userInfo = ref<IUserInfo | null>(null)
 // 用户信息是否已加载完成
 export const isUserInfoLoaded = ref(false)
 
@@ -39,7 +39,7 @@ export const fetchUserInfo = async () => {
 // 退出登录
 const logoutFetcher = useBaseFetch({
   fetchOptionFn: () => ({
-    url: 'user/logout',
+    url: 'logout',
     mockProd: true,
   }),
 })

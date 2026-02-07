@@ -1,34 +1,11 @@
 <script setup lang="ts">
-import hljs from "highlight.js";
-import { marked } from "marked";
 import {useResetRef} from "~/util/hooks/useResetState.ts";
 import {isUserInfoLoaded, userInfo} from "~/store/userInfo.ts";
 import {streamFetch} from '~/util/api.ts'
 import {useBaseFetch} from '~/util/hooks/useBaseFetch.ts'
-
-interface IChat {
-  question: string;
-  // 流式分片拼接存储，实现实时打字机效果
-  streamingAnswer?: string;
-}
-// 流式数据结构（对应后端SSE推送格式）
-interface IStreamData {
-  code: number;
-  msg: string;
-  data: {
-    conversationId: string;
-    partialAnswer?: string;
-  };
-}
-// 历史会话响应结构
-interface IHistoryResponse {
-  code: number;
-  msg: string;
-  data: {
-    conversationId: string;
-    list: Array<{ question: string; answer: string }>;
-  };
-}
+import {useAutoScroll} from '~/util/hooks/useAutoScroll.ts'
+import {renderMarkdown} from '~/util/markdown.ts'
+import type {IChat, IStreamData} from '~/types/chat.ts'
 
 const route = useRoute()
 // 使用 ref 存储 conversationId，初始值从路由参数获取
@@ -61,7 +38,7 @@ const clickSend = () => {
   question.value = ''
   fetchQuestionWithSSE()
 }
-const [isFetching, _resetIsFetching] = useResetRef((): boolean => false)
+const [isFetching] = useResetRef((): boolean => false)
 const [chatList, resetChatList] = useResetRef((): IChat[] => [])
 // 关闭SSE连接（统一管理，避免内存泄漏）
 const closeSSEConnection = () => {
@@ -165,36 +142,9 @@ const clickStopFetch = () => {
   closeSSEConnection();
 };
 
-// 配置 marked：启用代码高亮
-marked.setOptions({
-  highlight: (code, lang) => {
-    // 如果指定了语言，且 highlight.js 支持该语言，则高亮
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return hljs.highlight(code, { language: lang }).value;
-      } catch (err) {
-        console.error('代码高亮失败：', err);
-      }
-    }
-    // 不支持的语言，默认高亮
-    return hljs.highlightAuto(code).value;
-  },
-  breaks: true, // 自动将 \n 转为 <br>
-  gfm: true, // 支持 GitHub Flavored Markdown
-});
-
-// 辅助函数：将 Markdown 字符串转为 HTML
-const renderMarkdown = (content: string | undefined): string => {
-  if (!content) return '';
-  // 解析 Markdown 为 HTML
-  return marked.parse(content);
-};
-
 const connectRef = ref<HTMLDivElement | null>(null)
 const loginDialogVisible = ref(false)
 const historyDrawerVisible = ref(false)
-const historyDrawerRef = ref<{ fetchHistoryList: () => void } | null>(null)
-
 // 复制功能相关
 const activeItemIndex = ref<number | null>(null) // 当前激活显示复制按钮的项
 const copiedItems = ref<Set<string>>(new Set()) // 已复制的项（用于显示对号）
@@ -219,51 +169,13 @@ const handleItemClick = (index: number) => {
 }
 
 // 自动滚动控制
-const autoScrollEnabled = ref(true)
-const showScrollToBottom = ref(false)
-let lastScrollTop = 0
-
-// 平滑滚动到底部
-const scrollToBottom = (smooth = false) => {
-  if (!connectRef.value) return
-  if (smooth) {
-    connectRef.value.scrollTo({
-      top: connectRef.value.scrollHeight,
-      behavior: 'smooth'
-    })
-  } else {
-    connectRef.value.scrollTop = connectRef.value.scrollHeight
-  }
-}
-
-// 用户主动点击滚动到底部
-const clickScrollToBottom = () => {
-  scrollToBottom(true)
-  if (isFetching.value) {
-    autoScrollEnabled.value = true
-  }
-  showScrollToBottom.value = false
-}
-
-// 处理滚动事件 - 跟踪方向 & 恢复自动滚动
-const handleScroll = () => {
-  if (!connectRef.value) return
-  const { scrollTop, scrollHeight, clientHeight } = connectRef.value
-  const atBottom = scrollHeight - scrollTop - clientHeight < 50
-
-  // 用户向上滚动时，停止自动滚动
-  if (scrollTop < lastScrollTop && isFetching.value) {
-    autoScrollEnabled.value = false
-  }
-
-  // 用户滚动到底部时，重新激活自动滚动
-  if (atBottom && isFetching.value) {
-    autoScrollEnabled.value = true
-  }
-
-  showScrollToBottom.value = !atBottom
-  lastScrollTop = scrollTop
-}
+const {
+  autoScrollEnabled,
+  showScrollToBottom,
+  scrollToBottom,
+  clickScrollToBottom,
+  handleScroll,
+} = useAutoScroll(connectRef, isFetching)
 
 // 选择历史会话
 const handleSelectHistory = (selectedConversationId: string) => {
@@ -491,7 +403,6 @@ watch(isFetching, (val, oldVal) => {
 
     <!-- 历史会话抽屉 -->
     <HistoryDrawer
-      ref="historyDrawerRef"
       v-model="historyDrawerVisible"
       :current-conversation-id="conversationId"
       @select="handleSelectHistory"
