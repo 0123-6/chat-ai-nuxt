@@ -3,7 +3,9 @@
   line-height: 1.8;
   color: #333;
   font-size: 15px;
-  word-break: break-all;
+  word-break: break-word;
+  max-width: 100%;
+  overflow-x: hidden;  /* 防止内容溢出导致全局横向滚动 */
 }
 
 /* Markdown 内部元素样式优化 */
@@ -54,6 +56,7 @@
   border-radius: 8px;
   margin: 10px 0;
   overflow-x: auto;
+  max-width: 100%;  /* 确保不超出父容器 */
 }
 
 .ai-answer-markdown pre code {
@@ -79,35 +82,96 @@
   background-color: transparent;
 }
 
-/* 表格样式 */
+/* 引用块样式 */
+.ai-answer-markdown blockquote {
+  margin: 10px 0;
+  padding: 8px 16px;
+  border-left: 4px solid #3D6FE2;
+  background-color: #f6f8fc;
+  color: #555;
+  border-radius: 0 6px 6px 0;
+}
+
+.ai-answer-markdown blockquote p {
+  margin: 4px 0;
+}
+
+/* 链接样式 */
+.ai-answer-markdown a {
+  color: #3D6FE2;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.ai-answer-markdown a:hover {
+  border-bottom-color: #3D6FE2;
+}
+
+/* 分割线样式 */
+.ai-answer-markdown hr {
+  border: none;
+  height: 1px;
+  background-color: #e9ecef;
+  margin: 16px 0;
+}
+
+/* 列表标记样式 */
+.ai-answer-markdown ul {
+  list-style-type: disc;
+}
+
+.ai-answer-markdown ol {
+  list-style-type: decimal;
+}
+
+.ai-answer-markdown li + li {
+  margin-top: 4px;
+}
+
+/* 表格容器：移动端水平滚动 */
 .ai-answer-markdown table {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
+  max-width: 100%;  /* 确保不超出父容器 */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 16px 0;
   border-radius: 8px;
-  overflow: hidden;
+  border: 1px solid #e9ecef;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+.ai-answer-markdown thead,
+.ai-answer-markdown tbody,
+.ai-answer-markdown tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .ai-answer-markdown th {
-  background-color: #f8f9fa;
+  background-color: #f0f3f8;
   color: #212529;
   font-weight: 600;
   text-align: left;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border: 1px solid #e9ecef;
   white-space: nowrap;
+  font-size: 13px;
 }
 
 .ai-answer-markdown td {
-  padding: 12px 16px;
+  padding: 10px 14px;
   border: 1px solid #e9ecef;
   color: #343a40;
   vertical-align: middle;
+  word-break: break-word;
+  font-size: 14px;
 }
 
 .ai-answer-markdown tr:hover {
-  background-color: #f8f9fa;
+  background-color: #f5f7fa;
   transition: background-color 0.2s ease;
 }
 
@@ -117,4 +181,11 @@
 
 .ai-answer-markdown tr:nth-child(odd) {
   background-color: #fafbfc;
+}
+
+/* 图片样式 */
+.ai-answer-markdown img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 8px 0;
 }
