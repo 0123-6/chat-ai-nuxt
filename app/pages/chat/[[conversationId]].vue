@@ -40,15 +40,63 @@ const clickSend = () => {
 }
 const [isFetching] = useResetRef((): boolean => false)
 const [chatList, resetChatList] = useResetRef((): IChat[] => [])
+
+// 逐字符渲染相关
+let charDripTimer: ReturnType<typeof setInterval> | null = null
+let currentDripState: {chat: IChat, buffer: string} | null = null
+
+const startCharDrip = (chat: IChat) => {
+  // 确保先停止之前的渲染
+  stopCharDrip()
+
+  currentDripState = {chat, buffer: ''}
+  charDripTimer = setInterval(() => {
+    if (currentDripState && currentDripState.buffer.length > 0) {
+      // 根据缓冲区长度动态调整每次输出的字符数
+      let charsToOutput = 1
+      const bufferLength = currentDripState.buffer.length
+
+      if (bufferLength > 100) {
+        charsToOutput = 10  // 缓冲区很大，快速输出
+      } else if (bufferLength > 50) {
+        charsToOutput = 5   // 缓冲区较大，加快输出
+      } else if (bufferLength > 20) {
+        charsToOutput = 2   // 缓冲区适中，略微加快
+      }
+
+      const outputText = currentDripState.buffer.slice(0, charsToOutput)
+      currentDripState.chat.streamingAnswer = (currentDripState.chat.streamingAnswer || '') + outputText
+      currentDripState.buffer = currentDripState.buffer.slice(charsToOutput)
+    }
+  }, 30)
+}
+
+const stopCharDrip = () => {
+  if (charDripTimer) {
+    clearInterval(charDripTimer)
+    charDripTimer = null
+  }
+  // 立即刷新剩余缓冲内容
+  if (currentDripState && currentDripState.buffer.length > 0) {
+    currentDripState.chat.streamingAnswer = (currentDripState.chat.streamingAnswer || '') + currentDripState.buffer
+    currentDripState.buffer = ''
+  }
+  currentDripState = null
+}
+
 // 关闭SSE连接（统一管理，避免内存泄漏）
 const closeSSEConnection = () => {
   fetchQuestionAbortController?.abort?.()
+  stopCharDrip()
   isFetching.value = false
 };
 
 const clickNewChat = () => {
   closeSSEConnection();
   resetChatList();
+  // 清空复制状态
+  copiedItems.value.clear();
+  activeItemIndex.value = null;
   // 重置 conversationId 并更新 URL
   conversationId.value = undefined
   window.history.replaceState({}, '', '/nuxt/chat')
@@ -98,6 +146,7 @@ onMounted(() => {
 })
 
 let fetchQuestionAbortController: AbortController
+
 const fetchQuestionWithSSE = async () => {
   if (!chatList.value.length) return;
   const lastChat = chatList.value.at(-1)!;
@@ -110,6 +159,8 @@ const fetchQuestionWithSSE = async () => {
   autoScrollEnabled.value = true
   showScrollToBottom.value = false
   fetchQuestionAbortController = new AbortController()
+  // 启动逐字符渲染
+  startCharDrip(lastChat)
 
   const {isOk, reason} = await streamFetch<IStreamData>({
     url: '/api/ai/chat',
@@ -124,17 +175,19 @@ const fetchQuestionWithSSE = async () => {
         if (streamData.data.conversationId && !conversationId.value) {
           updateConversationIdInUrl(streamData.data.conversationId)
         }
-        if (streamData.data.partialAnswer) {
-          lastChat.streamingAnswer = (lastChat.streamingAnswer || '') + streamData.data.partialAnswer;
+        if (streamData.data.partialAnswer && currentDripState) {
+          currentDripState.buffer += streamData.data.partialAnswer
         }
       }
     },
   })
 
+  // 停止逐字符渲染，立即刷新剩余内容
+  stopCharDrip()
   if (!isOk && reason !== 'AbortError') {
     lastChat.streamingAnswer = '请求异常，请稍后重试';
   }
-  closeSSEConnection();
+  isFetching.value = false
 };
 
 // 停止请求
@@ -182,6 +235,9 @@ const handleSelectHistory = (selectedConversationId: string) => {
   if (conversationId.value === selectedConversationId) return
   closeSSEConnection()
   resetChatList()
+  // 清空复制状态
+  copiedItems.value.clear()
+  activeItemIndex.value = null
   conversationId.value = selectedConversationId
   window.history.replaceState({}, '', `/nuxt/chat/${selectedConversationId}`)
   fetchHistoryById()
@@ -191,6 +247,9 @@ const handleSelectHistory = (selectedConversationId: string) => {
 const handleLogout = () => {
   closeSSEConnection()
   resetChatList()
+  // 清空复制状态
+  copiedItems.value.clear()
+  activeItemIndex.value = null
   conversationId.value = undefined
   // 更新 URL
   window.history.replaceState({}, '', '/nuxt/chat')
@@ -254,7 +313,7 @@ watch(isFetching, (val, oldVal) => {
         <!--内容区-->
         <div
           ref="connectRef"
-          class="w-4/5 max-w-200 flex flex-col overflow-y-auto overflow-x-hidden relative"
+          class="w-full flex flex-col items-center overflow-y-auto overflow-x-hidden relative"
           :class="[
           chatList.length ? 'grow' : '',
         ]"
@@ -262,14 +321,14 @@ watch(isFetching, (val, oldVal) => {
         >
           <div
             v-if="!chatList.length"
-            class="w-full h-full flex flex-col justify-center items-center gap-y-2"
+            class="w-4/5 max-w-200 h-full flex flex-col justify-center items-center gap-y-2"
           >
             <span class="mb-5 h-9 text-black font-bold text-2xl">{{helpContent}}</span>
             <!--<HintList @click="clickHint"/>-->
           </div>
           <div
             v-else
-            class="w-full h-full flex flex-col gap-y-13"
+            class="w-4/5 max-w-200 h-full flex flex-col gap-y-13"
           >
             <div
               v-for="(item, index) in chatList"
